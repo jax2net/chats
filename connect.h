@@ -20,6 +20,7 @@ void connect(std::string chan, int &sockd) {
   std::cout << username << std::endl;
   std::cout << key << std::endl;
 
+
   int connected = 0;
   char server[] = "irc.chat.twitch.tv";
   int port = 6667;
