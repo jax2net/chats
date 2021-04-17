@@ -1,2 +1,5 @@
-chats: main.o
-	g++ main.cpp -o main
+CC=gcc
+EXEC=main
+
+make:
+	$(CC) *.c -o $(EXEC)
