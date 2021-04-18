@@ -1,7 +1,6 @@
 #include "connect.h"
 
 void connect_server(char *channel, int *sockd) {
-
     // get config
     //char *home = getenv("HOME");
     FILE *fp;
@@ -39,6 +38,7 @@ void connect_server(char *channel, int *sockd) {
 
     int c = connect(*sockd, (struct sockaddr *)&addr, sizeof(addr));
     if (c == -1) { printf("Cannot establish connection to server."); }
+
 
     // COMMANDS
     send(*sockd, &pass[0], sizeof(pass)/sizeof(pass[0]), 0);
