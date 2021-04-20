@@ -1,6 +1,6 @@
 CC=gcc
 EXEC=main
-LIBS=SDL2
+LIBS=-lSDL2 -lSDL2_ttf
 
 make:
-	$(CC) *.c -l$(LIBS) -o $(EXEC)
+	$(CC) *.c $(LIBS) -o $(EXEC)
