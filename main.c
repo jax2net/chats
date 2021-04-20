@@ -17,33 +17,19 @@ int main(int argc, char **argv) {
         printf("Failed to make window and renderer: %s\n", SDL_GetError());
         return -1;
     }
-    SDL_Texture *texture;
 
     if (TTF_Init() == -1) {
         printf("Failed to initialize TTF: %s", SDL_GetError());
     }
 
-    TTF_Font *font = TTF_OpenFont("ComicNeue-Regular.ttf", 23);
+    TTF_Font *font = TTF_OpenFont("ComicNeue-Regular.ttf", 45);
     if (!font) {
         printf("Failed to open font: %s\n", TTF_GetError());
     }
-    SDL_Color color;
-    color.r = 0;
-    color.g = 0;
-    color.b = 0;
+    SDL_Color text_color = {0, 0, 0};
+    SDL_Color background_color = {255, 255, 255};
 
-    SDL_Rect srcrect;
-    SDL_Rect dstrect;
-
-    srcrect.x = 0;
-    srcrect.y = 0;
-    srcrect.w = 300;
-    srcrect.h = 300;
-
-    dstrect.x = 50;
-    dstrect.y = 300;
-    dstrect.w = 600;
-    dstrect.h = 60;
+    SDL_Rect dstrect = {50, 300, 600, 70};
 
     int sockd;
     connect_server(argv[1], &sockd);
@@ -59,28 +45,31 @@ int main(int argc, char **argv) {
         }
 
         memset(&sockbuff[0], '\0', sizeof(sockbuff));
-        recv(sockd, &sockbuff[0], sizeof(sockbuff)/sizeof(sockbuff[0]), 0);
+        int msg_len = recv(sockd, &sockbuff[0], sizeof(sockbuff)/sizeof(sockbuff[0]), 0);
 
-        char n[32], z[32], x[32], y[32], m[256], q[1], w[1];
-        // @TODO: Dont hardcode this
-        sscanf(sockbuff, ":%31[^!]%s%s%s%c%c%256[^\n]",
-               n, x, y, z, q, w, m);
+        SDL_Texture *font_texture;
+        if (msg_len > 0) {
+            char n[32], z[32], x[32], y[32], m[256], q[1], w[1];
+            // @TODO: Dont hardcode this
+            sscanf(sockbuff, ":%31[^!]%s%s%s%c%c%256[^\n]",
+                   n, x, y, z, q, w, m);
+            strcat(n, ": ");
+            printf("%s: ", n);
+            strcat(m, "\n");
+            printf("%s", m);
 
-        printf("%s: ", n);
-        printf("%s\n", m);
+            char msg[500];
+            strcat(msg, n);
+            strcat(msg, m);
 
-        char msg[500];
-        strcat(msg, n);
-        strcat(msg, m);
-
-        SDL_Surface *surface = TTF_RenderText_Blended(font, msg, color);
-        texture = SDL_CreateTextureFromSurface(renderer, surface);
-        SDL_FreeSurface(surface);
-
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 1);
+            SDL_Surface *surface = TTF_RenderText_Blended_Wrapped(font, msg, text_color, 700);
+            font_texture = SDL_CreateTextureFromSurface(renderer, surface);
+        }
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 1); // background
         SDL_RenderClear(renderer);
-        SDL_RenderCopy(renderer, texture, NULL, &dstrect);
+        SDL_RenderCopy(renderer, font_texture, NULL, &dstrect);
         SDL_RenderPresent(renderer);
+        SDL_DestroyTexture(font_texture);
     }
     TTF_Quit();
     SDL_Quit();
